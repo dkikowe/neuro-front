@@ -55,8 +55,7 @@ export default function DashboardPage() {
     return (
       <section className="bg-slate-50 min-h-screen">
         <div className="mx-auto flex min-h-[70vh] max-w-6xl flex-col justify-center px-6 py-16 text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-slate-900 border-r-transparent"></div>
-          <p className="mt-4 text-slate-600">Загрузка...</p>
+          <p className="text-slate-600">Загрузка...</p>
         </div>
       </section>
     );
