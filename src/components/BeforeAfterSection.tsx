@@ -15,10 +15,6 @@ export default function BeforeAfterSection() {
           <h2 className="text-3xl font-semibold text-slate-900">
             До/после для разных стилей
           </h2>
-          <p className="text-slate-600">
-            Замени эти заглушки на реальные превью, как только загрузишь свои
-            данные.
-          </p>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
           {pairs.map((pair) => (
@@ -34,9 +30,13 @@ export default function BeforeAfterSection() {
                 {[pair.from, pair.to].map((state) => (
                   <div
                     key={state}
-                    className="flex h-48 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-200 to-slate-100 text-sm font-medium text-slate-600"
+                    className="relative h-48 overflow-hidden rounded-2xl bg-slate-100"
                   >
-                    {state}
+                    <img
+                      src="/test/test.jpg"
+                      alt={state}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
