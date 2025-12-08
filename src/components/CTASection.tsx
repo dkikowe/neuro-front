@@ -2,7 +2,7 @@ import Button from "./Button";
 
 export default function CTASection() {
   return (
-    <section className="bg-slate-900">
+    <section className="bg-slate-900 dark:bg-slate-950 transition-colors">
       <div className="mx-auto max-w-4xl px-6 py-20 text-center text-white">
         <p className="text-sm uppercase tracking-[0.25em] text-white/60">
           Попробуйте сегодня

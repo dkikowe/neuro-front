@@ -192,16 +192,30 @@ export interface Style {
 export interface UploadResponse {
   fileId?: string;
   file_id?: string;
+  upload_id?: string;
+  uploadId?: string;
+  id?: string;
   fileName?: string;
   file_name?: string;
   url?: string;
   file_url?: string;
   image_url?: string;
+  after_url?: string;
+  result_url?: string;
+  before_url?: string;
+  before?: string;
+  after?: string;
+  created_by?: string;
+  createdBy?: string;
+  created_at?: string;
+  createdAt?: string;
+  style?: string;
 }
 
 export interface StartGenerationRequest {
   image_url: string;
   style: string;
+  upload_id?: string;
 }
 
 export interface StartGenerationResponse {
@@ -222,37 +236,20 @@ export interface GenerationStatus {
 }
 
 /**
- * Получить список доступных стилей
- * Стили фиксированные согласно документации API
+ * Получить список доступных стилей из бэкенда
  */
-export function getStyles(): Style[] {
-  const availableStyles: Style[] = [
-    { id: "anime", name: "anime", displayName: "Аниме" },
-    { id: "realistic", name: "realistic", displayName: "Реалистичный" },
-    { id: "cartoon", name: "cartoon", displayName: "Мультфильм" },
-    { id: "digital-art", name: "digital-art", displayName: "Цифровое искусство" },
-    { id: "fantasy", name: "fantasy", displayName: "Фэнтези" },
-    { id: "cinematic", name: "cinematic", displayName: "Кинематографический" },
-    { id: "3d", name: "3d", displayName: "3D" },
-    { id: "pixel", name: "pixel", displayName: "Пиксель" },
-    { id: "neon", name: "neon", displayName: "Неон" },
-    { id: "isometric", name: "isometric", displayName: "Изометрический" },
-    { id: "low-poly", name: "low-poly", displayName: "Low Poly" },
-    { id: "line-art", name: "line-art", displayName: "Линейный рисунок" },
-    { id: "origami", name: "origami", displayName: "Оригами" },
-    { id: "tile", name: "tile", displayName: "Плитка" },
-    { id: "modeling", name: "modeling", displayName: "Моделирование" },
-    { id: "analog", name: "analog", displayName: "Аналоговый" },
-    { id: "enhance", name: "enhance", displayName: "Улучшение" },
-  ];
-  return availableStyles;
+export async function getStyles(): Promise<Style[]> {
+  const response = await api.get<Style[]>("/styles");
+  return response.data;
 }
 
 /**
  * Загрузить файл через бэкенд (бэкенд сам загрузит в S3)
  * Возвращает URL изображения для использования в генерации
  */
-export async function uploadFile(file: File): Promise<string> {
+export async function uploadFile(
+  file: File
+): Promise<{ imageUrl: string; uploadId?: string }> {
   console.log("Starting file upload:", {
     name: file.name,
     size: file.size,
@@ -275,16 +272,21 @@ export async function uploadFile(file: File): Promise<string> {
     console.log("Upload response:", response.data);
     
     // Извлекаем URL изображения из ответа
-    const imageUrl = 
-      response.data.image_url || 
-      response.data.url || 
+    const imageUrl =
+      response.data.image_url ||
+      response.data.url ||
       response.data.file_url;
+    const uploadId =
+      response.data.upload_id ||
+      response.data.uploadId ||
+      response.data.fileId ||
+      response.data.file_id;
     
     if (!imageUrl) {
       throw new Error("Не удалось получить URL изображения от сервера");
     }
     
-    return imageUrl;
+    return { imageUrl, uploadId };
   } catch (error: any) {
     console.error("Upload error details:", {
       message: error.message,
@@ -351,5 +353,30 @@ export async function getGenerationStatus(taskId: string): Promise<GenerationSta
   }
   
   return result;
+}
+
+/**
+ * Удалить загруженный файл пользователя и связанные объекты в S3
+ */
+export async function deleteUpload(uploadId: string): Promise<void> {
+  await api.delete(`/upload/${uploadId}`);
+}
+
+export type UploadItem = UploadResponse & {
+  id?: string;
+  before?: string;
+  before_url?: string;
+  after?: string;
+  after_url?: string;
+  created_by?: string;
+  createdBy?: string;
+};
+
+/**
+ * Получить список аплоадов текущего пользователя (desc)
+ */
+export async function getUploads(): Promise<UploadItem[]> {
+  const response = await api.get<UploadItem[]>("/upload");
+  return response.data;
 }
 
