@@ -52,6 +52,14 @@ export default function DashboardPage() {
 
       try {
         const userData = await authService.getMe();
+        console.log("=== /auth/me Response ===");
+        console.log("User Data:", userData);
+        console.log("generation_count:", userData.generation_count);
+        console.log("generations_count:", userData.generations_count);
+        console.log("generations_remaining:", userData.generations_remaining);
+        console.log("total_generations:", userData.total_generations);
+        console.log("remaining_generations:", userData.remaining_generations);
+        console.log("========================");
         setUser(userData);
       } catch (error: any) {
         // Если получили 401, пробуем рефрешнуть токен
@@ -60,6 +68,20 @@ export default function DashboardPage() {
           if (refreshed) {
             try {
               const userData = await authService.getMe();
+              console.log("=== /auth/me Response (after refresh) ===");
+              console.log("User Data:", userData);
+              console.log("generation_count:", userData.generation_count);
+              console.log("generations_count:", userData.generations_count);
+              console.log(
+                "generations_remaining:",
+                userData.generations_remaining
+              );
+              console.log("total_generations:", userData.total_generations);
+              console.log(
+                "remaining_generations:",
+                userData.remaining_generations
+              );
+              console.log("========================================");
               setUser(userData);
             } catch (retryError) {
               authService.logout();
@@ -239,21 +261,16 @@ export default function DashboardPage() {
             <Settings size={20} />
             Статистика
           </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-lg bg-slate-50 dark:bg-slate-800 p-4">
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                Сгенерировано
+                Количество генераций
               </p>
               <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-50">
-                0
-              </p>
-            </div>
-            <div className="rounded-lg bg-slate-50 dark:bg-slate-800 p-4">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                В процессе
-              </p>
-              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-50">
-                0
+                {user.generation_count ??
+                  user.generations_count ??
+                  user.total_generations ??
+                  0}
               </p>
             </div>
             <div className="rounded-lg bg-slate-50 dark:bg-slate-800 p-4">
@@ -261,7 +278,9 @@ export default function DashboardPage() {
                 Осталось генераций
               </p>
               <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-50">
-                ∞
+                {user.generations_remaining ??
+                  user.remaining_generations ??
+                  "∞"}
               </p>
             </div>
           </div>

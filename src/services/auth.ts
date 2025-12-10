@@ -18,6 +18,11 @@ export interface AuthResponse {
 export interface User {
   id: string;
   email: string;
+  generation_count?: number;
+  generations_count?: number;
+  generations_remaining?: number;
+  total_generations?: number;
+  remaining_generations?: number;
 }
 
 export const authService = {
@@ -47,6 +52,11 @@ export const authService = {
 
   async getMe(): Promise<User> {
     const response = await api.get<User>("/auth/me");
+    console.log("=== authService.getMe() Raw Response ===");
+    console.log("Full response:", response);
+    console.log("Response data:", response.data);
+    console.log("Response status:", response.status);
+    console.log("======================================");
     return response.data;
   },
 

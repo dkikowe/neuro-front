@@ -1,7 +1,19 @@
 const pairs = [
-  { label: "Портрет", from: "До", to: "После" },
-  { label: "Fashion", from: "До", to: "После" },
-  { label: "Cinematic", from: "До", to: "После" },
+  { 
+    label: "Современная роскошь", 
+    beforeImage: "/main/ex1before.jpg",
+    afterImage: "/main/ex1after.png"
+  },
+  { 
+    label: "Япанди", 
+    beforeImage: "/main/ex2before.jpg",
+    afterImage: "/main/ex2after.png"
+  },
+  { 
+    label: "Арт деко", 
+    beforeImage: "/main/ex3before.jpg",
+    afterImage: "/main/ex3after.jpg"
+  },
 ];
 
 export default function BeforeAfterSection() {
@@ -23,22 +35,24 @@ export default function BeforeAfterSection() {
               className="space-y-4 rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 transition-colors"
             >
               <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
-                <span>{pair.from}</span>
-                <span>{pair.to}</span>
+                <span>До</span>
+                <span>После</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {[pair.from, pair.to].map((state) => (
-                  <div
-                    key={state}
-                    className="relative h-48 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800"
-                  >
-                    <img
-                      src="/test/test.jpg"
-                      alt={state}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ))}
+                <div className="relative h-48 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
+                  <img
+                    src={pair.beforeImage}
+                    alt="До"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="relative h-48 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800">
+                  <img
+                    src={pair.afterImage}
+                    alt="После"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
               <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{pair.label}</p>
             </div>
