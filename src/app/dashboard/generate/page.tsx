@@ -37,7 +37,7 @@ type GalleryItem = {
 };
 
 const GALLERY_STORAGE_KEY = "galleryItems";
-const COOLDOWN_SECONDS = 2;
+const COOLDOWN_SECONDS = 10;
 
 export default function GeneratePage() {
   const router = useRouter();
@@ -62,6 +62,7 @@ export default function GeneratePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const cooldownIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -400,6 +401,9 @@ export default function GeneratePage() {
     filename = "generated-image.jpg"
   ) => {
     if (!url) return;
+
+    setIsDownloading(true);
+
     try {
       const response = await fetch(url);
       const blob = await response.blob();
@@ -411,6 +415,9 @@ export default function GeneratePage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
+
+      // Показываем индикатор загрузки минимум 2 секунды
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (err) {
       console.error("Не удалось скачать файл", err);
       // Попробуем через прямую ссылку с атрибутом download
@@ -422,6 +429,11 @@ export default function GeneratePage() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      // Показываем индикатор загрузки минимум 2 секунды
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -886,10 +898,20 @@ export default function GeneratePage() {
                               "generated-image.jpg"
                             )
                           }
-                          className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600"
+                          disabled={isDownloading}
+                          className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Download size={16} />
-                          Скачать
+                          {isDownloading ? (
+                            <>
+                              <Loader2 size={16} className="animate-spin" />
+                              Скачивание...
+                            </>
+                          ) : (
+                            <>
+                              <Download size={16} />
+                              Скачать
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>

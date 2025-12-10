@@ -10,6 +10,7 @@ import {
   Download,
   RefreshCw,
   Clock3,
+  Loader2,
 } from "lucide-react";
 
 type GalleryItem = {
@@ -44,6 +45,7 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -112,10 +114,14 @@ export default function GalleryPage() {
   };
 
   const handleDownload = async (
+    itemId: string,
     url: string,
     filename = "neuroframe-generated-image.jpg"
   ) => {
     if (!url) return;
+
+    setDownloadingId(itemId);
+
     try {
       const response = await fetch(url);
       const blob = await response.blob();
@@ -127,6 +133,9 @@ export default function GalleryPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
+
+      // Показываем индикатор загрузки минимум 2 секунды
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (err) {
       console.error("Не удалось скачать файл", err);
       // Попробуем через прямую ссылку с атрибутом download
@@ -138,6 +147,11 @@ export default function GalleryPage() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      // Показываем индикатор загрузки минимум 2 секунды
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -175,7 +189,7 @@ export default function GalleryPage() {
             </div>
             <button
               onClick={handleRefresh}
-              className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-100 transition hover:bg-slate-50 dark:hover:bg-slate-700"
+              className="flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-100 transition hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer"
             >
               <RefreshCw size={16} />
               Обновить
@@ -258,12 +272,26 @@ export default function GalleryPage() {
                   <div className="mt-4 flex flex-wrap gap-3">
                     <button
                       onClick={() =>
-                        handleDownload(item.resultUrl, "generated-image.jpg")
+                        handleDownload(
+                          item.id,
+                          item.resultUrl,
+                          "generated-image.jpg"
+                        )
                       }
-                      className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600"
+                      disabled={downloadingId === item.id}
+                      className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <Download size={16} />
-                      Скачать
+                      {downloadingId === item.id ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Скачивание...
+                        </>
+                      ) : (
+                        <>
+                          <Download size={16} />
+                          Скачать
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
