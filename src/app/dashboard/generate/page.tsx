@@ -404,23 +404,35 @@ export default function GeneratePage() {
 
     setIsDownloading(true);
 
-    // Создаем ссылку синхронно для Safari
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.target = "_blank";
-    link.style.display = "none";
-    document.body.appendChild(link);
-
     try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
 
       // Показываем индикатор загрузки минимум 2 секунды
       await new Promise((resolve) => setTimeout(resolve, 2000));
     } catch (err) {
       console.error("Не удалось скачать файл", err);
-    } finally {
+      // Попробуем через прямую ссылку с атрибутом download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
       document.body.removeChild(link);
+
+      // Показываем индикатор загрузки минимум 2 секунды
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    } finally {
       setIsDownloading(false);
     }
   };
