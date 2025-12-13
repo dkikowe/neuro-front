@@ -122,23 +122,42 @@ export default function GalleryPage() {
 
     setDownloadingId(itemId);
 
-    // Создаем ссылку синхронно для Safari
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.target = "_blank";
-    link.style.display = "none";
-    document.body.appendChild(link);
-
     try {
+      // Получаем blob через fetch
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Создаем blob URL
+      const blobUrl = URL.createObjectURL(blob);
+
+      // Создаем ссылку и кликаем
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      link.style.display = "none";
+      document.body.appendChild(link);
       link.click();
 
       // Показываем индикатор загрузки минимум 2 секунды
       await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Очищаем
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("Не удалось скачать файл", err);
-    } finally {
+      // Fallback - пробуем напрямую
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.target = "_blank";
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       document.body.removeChild(link);
+    } finally {
       setDownloadingId(null);
     }
   };
