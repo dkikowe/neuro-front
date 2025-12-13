@@ -123,34 +123,40 @@ export default function GalleryPage() {
     setDownloadingId(itemId);
 
     try {
-      // Получаем blob через fetch
-      const response = await fetch(url);
-      const blob = await response.blob();
+      // Пытаемся скачать через blob (как на странице генерации)
+      const response = await fetch(url, {
+        mode: "cors",
+        credentials: "omit",
+      });
 
-      // Создаем blob URL
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.status}`);
+      }
+
+      const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
 
-      // Создаем ссылку и кликаем
       const link = document.createElement("a");
       link.href = blobUrl;
       link.download = filename;
       link.style.display = "none";
+      link.target = "_self";
       document.body.appendChild(link);
       link.click();
 
-      // Показываем индикатор загрузки минимум 2 секунды
+      // Минимум 2 секунды "Скачивание..."
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Очищаем
-      document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(link);
     } catch (err) {
       console.error("Не удалось скачать файл", err);
-      // Fallback - пробуем напрямую
+      // Fallback — прямой клик (может открыть файл, но даёт шанс Safari)
       const link = document.createElement("a");
       link.href = url;
       link.download = filename;
-      link.target = "_blank";
+      link.target = "_self";
+      link.rel = "noopener noreferrer";
       link.style.display = "none";
       document.body.appendChild(link);
       link.click();
