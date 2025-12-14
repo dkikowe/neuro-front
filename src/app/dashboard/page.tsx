@@ -246,8 +246,11 @@ export default function DashboardPage() {
               </div>
             </Link>
 
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 opacity-60">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-500 text-white">
+            <Link
+              href="/dashboard/packages"
+              className="group flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 transition-all hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-500 text-white transition-transform group-hover:scale-110">
                 <Package size={20} />
               </div>
               <div>
@@ -255,10 +258,10 @@ export default function DashboardPage() {
                   Пакеты
                 </h3>
                 <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                  Скоро будет доступно
+                  Разовые HD и подписки
                 </p>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
 

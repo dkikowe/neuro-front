@@ -29,7 +29,7 @@ export default function Header() {
           href="/"
           className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50 transition-colors"
         >
-          NeuroFrame
+          interiorAI hub
         </Link>
         <nav className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-200">
           {isAuthenticated ? (
@@ -88,4 +88,3 @@ export default function Header() {
     </header>
   );
 }
-

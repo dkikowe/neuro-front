@@ -32,16 +32,13 @@ export default function Hero() {
               </div>
             ))}
           </div>
-          <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 p-6 text-white">
-            <p className="text-sm uppercase tracking-widest text-white/70">
-              Превью генерации
-            </p>
-            <p className="mt-3 text-2xl font-semibold">
-              Нейросеть готова к запуску
-            </p>
-            <p className="mt-2 text-white/70">
-              Просматривайте результаты сразу после загрузки фото.
-            </p>
+          <div className="overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
+            <img
+              src="/main/block.jpg"
+              alt="Превью генерации"
+              className="w-full h-auto object-cover"
+              loading="lazy"
+            />
           </div>
         </div>
       </div>
