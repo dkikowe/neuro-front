@@ -64,6 +64,10 @@ export default function GeneratePage() {
 
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadDialogUrl, setDownloadDialogUrl] = useState<string | null>(
+    null
+  );
+  const [isHdDownloading, setIsHdDownloading] = useState(false);
 
   const buildDownloadUrl = (fileUrl: string): string => {
     try {
@@ -410,14 +414,18 @@ export default function GeneratePage() {
 
   const handleDownload = async (
     url?: string,
-    filename = "generated-image.jpg"
+    filename = "generated-image.jpg",
+    hd = false
   ) => {
     if (!url) return;
 
     setIsDownloading(true);
+    setIsHdDownloading(hd);
 
     try {
-      const downloadUrl = buildDownloadUrl(url);
+      const downloadUrl = hd
+        ? `${buildDownloadUrl(url)}&hd=true`
+        : buildDownloadUrl(url);
       const link = document.createElement("a");
       link.href = downloadUrl;
 
@@ -454,6 +462,7 @@ export default function GeneratePage() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
     } finally {
       setIsDownloading(false);
+      setIsHdDownloading(false);
     }
   };
 
@@ -911,11 +920,11 @@ export default function GeneratePage() {
                       <div className="flex flex-wrap gap-3">
                         <button
                           onClick={() =>
-                            handleDownload(
+                            setDownloadDialogUrl(
                               generationStatus.result_url ||
                                 generationStatus.resultUrl ||
-                                generationStatus.resultImageUrl,
-                              "generated-image.jpg"
+                                generationStatus.resultImageUrl ||
+                                ""
                             )
                           }
                           disabled={isDownloading}
@@ -977,6 +986,66 @@ export default function GeneratePage() {
                 alt="Предпросмотр"
                 className="max-h-[90vh] w-full object-contain"
               />
+            </div>
+          </div>
+        </div>
+      )}
+      {downloadDialogUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => {
+            if (isDownloading) return;
+            setDownloadDialogUrl(null);
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
+              Скачать изображение
+            </h3>
+            <div className="space-y-3">
+              <button
+                onClick={() =>
+                  handleDownload(
+                    downloadDialogUrl,
+                    "generated-image-hd.jpg",
+                    true
+                  ).finally(() => setDownloadDialogUrl(null))
+                }
+                disabled={isDownloading}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-slate-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={16} />
+                {isHdDownloading ? "Загрузка HD..." : "Скачать HD"}
+              </button>
+              <button
+                onClick={() =>
+                  handleDownload(
+                    downloadDialogUrl,
+                    "generated-image.jpg",
+                    false
+                  ).finally(() => setDownloadDialogUrl(null))
+                }
+                disabled={isDownloading}
+                className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-slate-50 transition hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={16} />
+                {isDownloading && !isHdDownloading
+                  ? "Загрузка..."
+                  : "Скачать обычное"}
+              </button>
+              <button
+                onClick={() => {
+                  if (isDownloading) return;
+                  setDownloadDialogUrl(null);
+                }}
+                disabled={isDownloading}
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Отмена
+              </button>
             </div>
           </div>
         </div>

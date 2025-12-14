@@ -58,6 +58,14 @@ export default function GalleryPage() {
   const [error, setError] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [downloadingHdId, setDownloadingHdId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [downloadDialog, setDownloadDialog] = useState<{
+    id: string;
+    url: string;
+  } | null>(null);
+
+  const PAGE_SIZE = 5;
 
   useEffect(() => {
     const init = async () => {
@@ -115,6 +123,7 @@ export default function GalleryPage() {
         .filter(Boolean) as GalleryItem[];
 
       setItems(mapped);
+      setCurrentPage(1);
     } catch (e: any) {
       console.error("Failed to load uploads", e);
       setError(
@@ -128,15 +137,21 @@ export default function GalleryPage() {
   const handleDownload = async (
     itemId: string,
     url: string,
-    filename = "neuroframe-generated-image.jpg"
+    filename = "neuroframe-generated-image.jpg",
+    hd = false
   ) => {
     if (!url) return;
 
     setDownloadingId(itemId);
+    if (hd) {
+      setDownloadingHdId(itemId);
+    }
 
     try {
       // Скачивание через прямую ссылку на бэкенд (без fetch, с атрибутом download)
-      const downloadUrl = buildDownloadUrl(url);
+      const downloadUrl = hd
+        ? `${buildDownloadUrl(url)}&hd=true`
+        : buildDownloadUrl(url);
       const link = document.createElement("a");
       link.href = downloadUrl;
 
@@ -176,11 +191,23 @@ export default function GalleryPage() {
       document.body.removeChild(link);
     } finally {
       setDownloadingId(null);
+      setDownloadingHdId(null);
     }
   };
 
   const handleRefresh = () => {
     loadUploads();
+  };
+
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const pagedItems = items.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  const goToPage = (page: number) => {
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    setCurrentPage(safePage);
   };
 
   if (loading) {
@@ -241,7 +268,7 @@ export default function GalleryPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {items.map((item) => (
+              {pagedItems.map((item) => (
                 <div
                   key={item.id}
                   className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm transition-colors"
@@ -272,6 +299,7 @@ export default function GalleryPage() {
                         <img
                           src={item.originalUrl}
                           alt="До"
+                          loading="lazy"
                           className="w-full h-auto object-contain cursor-zoom-in"
                           onClick={() => setPreviewUrl(item.originalUrl)}
                         />
@@ -286,6 +314,7 @@ export default function GalleryPage() {
                         <img
                           src={item.resultUrl}
                           alt="После"
+                          loading="lazy"
                           className="w-full h-auto object-contain cursor-zoom-in"
                           onClick={() => setPreviewUrl(item.resultUrl)}
                         />
@@ -296,11 +325,10 @@ export default function GalleryPage() {
                   <div className="mt-4 flex flex-wrap gap-3">
                     <button
                       onClick={() =>
-                        handleDownload(
-                          item.id,
-                          item.resultUrl,
-                          "generated-image.jpg"
-                        )
+                        setDownloadDialog({
+                          id: item.id,
+                          url: item.resultUrl,
+                        })
                       }
                       disabled={downloadingId === item.id}
                       className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -320,6 +348,27 @@ export default function GalleryPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+          {items.length > PAGE_SIZE && (
+            <div className="mt-8 flex items-center justify-between gap-4">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                Назад
+              </button>
+              <div className="text-sm text-slate-600 dark:text-slate-300">
+                Страница {currentPage} из {totalPages}
+              </div>
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                Вперёд
+              </button>
             </div>
           )}
         </div>
@@ -347,6 +396,72 @@ export default function GalleryPage() {
                 alt="Предпросмотр"
                 className="max-h-[90vh] w-full object-contain"
               />
+            </div>
+          </div>
+        </div>
+      )}
+      {downloadDialog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => {
+            if (downloadingId) return;
+            setDownloadDialog(null);
+          }}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
+              Скачать изображение
+            </h3>
+            <div className="space-y-3">
+              <button
+                onClick={() =>
+                  downloadDialog &&
+                  handleDownload(
+                    downloadDialog.id,
+                    downloadDialog.url,
+                    "generated-image-hd.jpg",
+                    true
+                  ).finally(() => setDownloadDialog(null))
+                }
+                disabled={downloadingId === downloadDialog.id}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-slate-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={16} />
+                {downloadingHdId === downloadDialog.id
+                  ? "Загрузка HD..."
+                  : "Скачать HD"}
+              </button>
+              <button
+                onClick={() =>
+                  downloadDialog &&
+                  handleDownload(
+                    downloadDialog.id,
+                    downloadDialog.url,
+                    "generated-image.jpg",
+                    false
+                  ).finally(() => setDownloadDialog(null))
+                }
+                disabled={downloadingId === downloadDialog.id}
+                className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-slate-50 transition hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={16} />
+                {downloadingId === downloadDialog.id && !downloadingHdId
+                  ? "Загрузка..."
+                  : "Скачать обычное"}
+              </button>
+              <button
+                onClick={() => {
+                  if (downloadingId) return;
+                  setDownloadDialog(null);
+                }}
+                disabled={!!downloadingId}
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Отмена
+              </button>
             </div>
           </div>
         </div>
