@@ -12,6 +12,7 @@ import {
   type Style,
   type GenerationStatus,
 } from "@/lib/api";
+import { API_BASE_URL } from "@/lib/api";
 import {
   Upload,
   Sparkles,
@@ -63,6 +64,17 @@ export default function GeneratePage() {
 
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const buildDownloadUrl = (fileUrl: string): string => {
+    try {
+      const urlObj = new URL(fileUrl);
+      const key = (urlObj.pathname || "").replace(/^\/+/, "");
+      return `${API_BASE_URL}/api/download?key=${encodeURIComponent(key)}`;
+    } catch (e) {
+      const key = fileUrl.replace(/^\/+/, "");
+      return `${API_BASE_URL}/api/download?key=${encodeURIComponent(key)}`;
+    }
+  };
 
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const cooldownIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -405,16 +417,24 @@ export default function GeneratePage() {
     setIsDownloading(true);
 
     try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const downloadUrl = buildDownloadUrl(url);
       const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = filename;
+      link.href = downloadUrl;
+
+      try {
+        const keyFromUrl = decodeURIComponent(
+          downloadUrl.split("key=")[1] || ""
+        );
+        const nameFromKey = keyFromUrl.split("/").pop();
+        link.download = nameFromKey || filename;
+      } catch {
+        link.download = filename;
+      }
+
+      link.style.display = "none";
+      link.target = "_self";
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
 
       // Показываем индикатор загрузки минимум 2 секунды
       await new Promise((resolve) => setTimeout(resolve, 2000));

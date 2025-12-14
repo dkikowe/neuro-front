@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth";
-import { getUploads, type UploadItem } from "@/lib/api";
+import { API_BASE_URL, getUploads, type UploadItem } from "@/lib/api";
 import {
   Image as ImageIcon,
   Sparkles,
@@ -37,6 +37,18 @@ const styleNamesRu: Record<string, string> = {
 const getStyleDisplayName = (styleId?: string): string => {
   if (!styleId) return "";
   return styleNamesRu[styleId] || styleId;
+};
+
+const buildDownloadUrl = (fileUrl: string): string => {
+  try {
+    const urlObj = new URL(fileUrl);
+    const key = (urlObj.pathname || "").replace(/^\/+/, "");
+    return `${API_BASE_URL}/api/download?key=${encodeURIComponent(key)}`;
+  } catch (e) {
+    // Если это не валидный URL (вдруг пришёл относительный путь) — пробуем как есть
+    const key = fileUrl.replace(/^\/+/, "");
+    return `${API_BASE_URL}/api/download?key=${encodeURIComponent(key)}`;
+  }
 };
 
 export default function GalleryPage() {
@@ -123,22 +135,22 @@ export default function GalleryPage() {
     setDownloadingId(itemId);
 
     try {
-      // Пытаемся скачать через blob (как на странице генерации)
-      const response = await fetch(url, {
-        mode: "cors",
-        credentials: "omit",
-      });
+      // Скачивание через прямую ссылку на бэкенд (без fetch, с атрибутом download)
+      const downloadUrl = buildDownloadUrl(url);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
 
-      if (!response.ok) {
-        throw new Error(`Download failed: ${response.status}`);
+      // Если возможно, берём имя файла из ключа
+      try {
+        const keyFromUrl = decodeURIComponent(
+          downloadUrl.split("key=")[1] || ""
+        );
+        const nameFromKey = keyFromUrl.split("/").pop();
+        link.download = nameFromKey || filename;
+      } catch {
+        link.download = filename;
       }
 
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = filename;
       link.style.display = "none";
       link.target = "_self";
       document.body.appendChild(link);
@@ -147,11 +159,10 @@ export default function GalleryPage() {
       // Минимум 2 секунды "Скачивание..."
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      URL.revokeObjectURL(blobUrl);
       document.body.removeChild(link);
     } catch (err) {
       console.error("Не удалось скачать файл", err);
-      // Fallback — прямой клик (может открыть файл, но даёт шанс Safari)
+      // Fallback — прямой клик по исходному URL
       const link = document.createElement("a");
       link.href = url;
       link.download = filename;
