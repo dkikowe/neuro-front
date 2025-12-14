@@ -6,15 +6,13 @@ export default function Hero() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-24 lg:flex-row lg:items-center">
         <div className="flex-1 space-y-6">
           <p className="text-sm uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">
-            Фото → Стиль → HD
+            Фото → Интерьер → Рендер
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl">
-            Создавайте уникальные нейрообразы из любых фотографий
+            Создавайте новый интерьер из любой фотографии
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Загрузите своё фото, выберите стиль и получите серию изображений в
-            студийном качестве. Инструменты предпросмотра и покупки HD доступны
-            сразу после генерации.
+            Загрузите изображение комнаты и получите серию реалистичных вариантов в разных стилях. AI аккуратно сохраняет планировку и структуру помещения, предлагая обновлённый дизайн в студийном качестве.
           </p>
           <div className="flex flex-wrap gap-4">
             <Button href="/auth/register">Попробовать</Button>

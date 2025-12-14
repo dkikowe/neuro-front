@@ -6,6 +6,67 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/services/auth";
 
+const translateError = (message: string, status?: number): string => {
+  const map: Record<string, string> = {
+    "Could not validate credentials": "Не удалось проверить учетные данные",
+    "Email not verified": "Email не подтвержден",
+    "Too many requests": "Слишком много запросов, попробуйте позже",
+    "User with this email already exists": "Пользователь с таким email уже существует",
+    "Disposable email domains are not allowed": "Одноразовые email запрещены",
+    "Invalid token": "Неверный токен",
+    "Token expired": "Срок действия токена истек",
+    "Please wait before requesting again": "Подождите перед повторной отправкой",
+    "Incorrect email or password": "Неверный email или пароль",
+    "Filename is required": "Имя файла обязательно",
+    "File is empty": "Файл пустой",
+    "Style is required": "Стиль обязателен",
+    "Unsupported style": "Неподдерживаемый стиль. Проверьте /styles",
+    "Upload not found": "Загрузка не найдена",
+    "key is required": "Не указан ключ файла",
+    "File not found": "Файл не найден",
+    "Could not validate refresh token": "Не удалось проверить refresh токен",
+  };
+
+  if (!message && status) {
+    if (status === 429) return "Слишком много запросов, попробуйте позже";
+    if (status === 401) return "Требуется авторизация";
+    if (status === 403) return "Доступ запрещен";
+    if (status === 404) return "Не найдено";
+    if (status >= 500) return "Ошибка сервера";
+  }
+
+  if (message && map[message]) return map[message];
+
+  if (message?.includes("status code 429")) {
+    return "Слишком много запросов, попробуйте позже";
+  }
+
+  return message || "Произошла ошибка. Попробуйте позже.";
+};
+
+const extractErrorMessage = (err: any): { text: string; status?: number } => {
+  const resp = err?.response;
+  const data = resp?.data;
+  let detail = data?.detail;
+
+  if (Array.isArray(detail)) {
+    detail = detail
+      .map((d) => (typeof d === "string" ? d : d?.msg || d?.message))
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  const raw =
+    detail ||
+    data?.message ||
+    data?.error ||
+    err?.message ||
+    err?.toString() ||
+    "";
+
+  return { text: raw, status: resp?.status };
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -42,11 +103,8 @@ export default function LoginPage() {
       // Используем router.replace для навигации без полной перезагрузки
       router.replace("/dashboard/generate");
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Ошибка входа. Проверьте данные.";
+      const parsed = extractErrorMessage(err);
+      const errorMessage = translateError(parsed.text, parsed.status);
       setError(errorMessage);
       console.error("Login error:", err);
     } finally {
@@ -107,6 +165,14 @@ export default function LoginPage() {
             >
               {loading ? "Вход..." : "Войти"}
             </button>
+            <div className="text-center">
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm font-semibold text-slate-900 dark:text-slate-50 hover:underline"
+              >
+                Забыли пароль?
+              </Link>
+            </div>
           </form>
           <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
             Нет аккаунта?{" "}

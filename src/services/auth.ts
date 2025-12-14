@@ -5,6 +5,19 @@ export interface RegisterData {
   password: string;
 }
 
+export interface ResendVerificationData {
+  email: string;
+}
+
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  token: string;
+  password: string;
+}
+
 export interface LoginData {
   username: string;
   password: string;
@@ -30,6 +43,18 @@ export const authService = {
   // Токены здесь не ожидаем, по ТЗ после 201 сразу логинимся отдельным запросом.
   async register(data: RegisterData): Promise<void> {
     await api.post("/auth/register", data);
+  },
+
+  async resendVerification(data: ResendVerificationData): Promise<void> {
+    await api.post("/auth/resend-verification", data);
+  },
+
+  async forgotPassword(data: ForgotPasswordData): Promise<void> {
+    await api.post("/auth/forgot-password", data);
+  },
+
+  async resetPassword(data: ResetPasswordData): Promise<void> {
+    await api.post("/auth/reset-password", data);
   },
 
   async login(data: LoginData): Promise<AuthResponse> {

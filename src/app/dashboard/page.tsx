@@ -8,12 +8,13 @@ import {
   User as UserIcon,
   Mail,
   Package,
-  Image,
+  Image as ImageIcon,
   Settings,
   Sparkles,
   Sun,
   Moon,
 } from "lucide-react";
+import NextImage from "next/image";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -174,8 +175,14 @@ export default function DashboardPage() {
         {/* Информация о пользователе */}
         <div className="mb-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm transition-colors">
           <div className="flex items-start gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 dark:from-slate-700 dark:to-slate-600 text-white">
-              <UserIcon size={30} />
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-slate-900 to-slate-700 dark:from-slate-700 dark:to-slate-600 text-white overflow-hidden">
+              <NextImage
+                src="/main/avatar.jpg"
+                alt="Avatar"
+                width={64}
+                height={64}
+                className="h-16 w-16 object-cover"
+              />
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
@@ -227,7 +234,7 @@ export default function DashboardPage() {
               className="group flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 transition-all hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-white transition-transform group-hover:scale-110">
-                <Image size={20} />
+                <ImageIcon size={20} />
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900 dark:text-slate-50">

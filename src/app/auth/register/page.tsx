@@ -1,10 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/services/auth";
+
+const translateError = (message: string, status?: number): string => {
+  const map: Record<string, string> = {
+    "Could not validate credentials": "Не удалось проверить учетные данные",
+    "Email not verified": "Email не подтвержден",
+    "Too many requests": "Слишком много запросов, попробуйте позже",
+    "User with this email already exists": "Пользователь с таким email уже существует",
+    "Disposable email domains are not allowed": "Одноразовые email запрещены",
+    "Invalid token": "Неверный токен",
+    "Token expired": "Срок действия токена истек",
+    "Please wait before requesting again": "Подождите перед повторной отправкой",
+    "Incorrect email or password": "Неверный email или пароль",
+    "Filename is required": "Имя файла обязательно",
+    "File is empty": "Файл пустой",
+    "Style is required": "Стиль обязателен",
+    "Unsupported style": "Неподдерживаемый стиль. Проверьте /styles",
+    "Upload not found": "Загрузка не найдена",
+    "key is required": "Не указан ключ файла",
+    "File not found": "Файл не найден",
+    "Could not validate refresh token": "Не удалось проверить refresh токен",
+  };
+
+  if (!message && status) {
+    if (status === 429) return "Слишком много запросов, попробуйте позже";
+    if (status === 401) return "Требуется авторизация";
+    if (status === 403) return "Доступ запрещен";
+    if (status === 404) return "Не найдено";
+    if (status >= 500) return "Ошибка сервера";
+  }
+
+  if (message && map[message]) return map[message];
+
+  if (message?.includes("status code 429")) {
+    return "Слишком много запросов, попробуйте позже";
+  }
+
+  return message || "Произошла ошибка. Попробуйте позже.";
+};
+
+const extractErrorMessage = (err: any): { text: string; status?: number } => {
+  const resp = err?.response;
+  const data = resp?.data;
+  let detail = data?.detail;
+
+  if (Array.isArray(detail)) {
+    detail = detail
+      .map((d) => (typeof d === "string" ? d : d?.msg || d?.message))
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  const raw =
+    detail ||
+    data?.message ||
+    data?.error ||
+    err?.message ||
+    err?.toString() ||
+    "";
+
+  return { text: raw, status: resp?.status };
+};
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,6 +76,18 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [codeSent, setCodeSent] = useState(false);
+
+  // Таймер для кулдауна повтора письма
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,32 +113,36 @@ export default function RegisterPage() {
         password,
       });
 
-      // 2) Если регистрация прошла успешно (201/2xx), сразу логинимся теми же данными
-      const loginResponse = await authService.login({
-        username: email,
-        password,
-      });
-
-      // Сейчас важен только accessToken, refresh токен опционален
-      if (!loginResponse.accessToken) {
-        throw new Error("Токен не получен от сервера при логине");
-      }
-
-      // 3) Сохраняем токен из ответа login (refresh при необходимости добавим позже)
-      authService.setTokens(loginResponse.accessToken, loginResponse.refreshToken);
-      
-      // 4) Навигация сразу в генерацию без полной перезагрузки
-      router.replace("/dashboard/generate");
+      // 2) Показываем сообщение и предлагаем подтвердить email
+      setSuccess(
+        "Аккаунт создан. Мы отправили письмо для подтверждения email. Проверьте почту и перейдите по ссылке."
+      );
+      setError("");
+      setResendCooldown(60);
+      setCodeSent(true);
     } catch (err: any) {
-      const errorMessage =
-        err.response?.data?.message ||
-        err.response?.data?.error ||
-        err.message ||
-        "Ошибка регистрации. Попробуйте снова.";
+      const parsed = extractErrorMessage(err);
+      const errorMessage = translateError(parsed.text, parsed.status);
       setError(errorMessage);
       console.error("Register error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!email || resendCooldown > 0) return;
+    try {
+      setError("");
+      setSuccess("");
+      await authService.resendVerification({ email });
+      setSuccess("Письмо отправлено повторно. Проверьте почту.");
+      setResendCooldown(60);
+    } catch (err: any) {
+      const parsed = extractErrorMessage(err);
+      const errorMessage = translateError(parsed.text, parsed.status);
+      setError(errorMessage);
+      console.error("Resend verification error:", err);
     }
   };
 
@@ -83,6 +160,11 @@ export default function RegisterPage() {
             {error && (
               <div className="rounded-2xl bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="rounded-2xl bg-green-50 dark:bg-green-900/20 p-3 text-sm text-green-700 dark:text-green-300">
+                {success}
               </div>
             )}
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -140,10 +222,24 @@ export default function RegisterPage() {
             </label>
             <button
               type="submit"
-              disabled={loading}
-              className="w-full rounded-full bg-slate-900 dark:bg-slate-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading || codeSent}
+              className={`w-full rounded-full bg-slate-900 dark:bg-slate-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed ${
+                codeSent ? "hidden" : ""
+              }`}
             >
               {loading ? "Регистрация..." : "Зарегистрироваться"}
+            </button>
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={!codeSent || !email || resendCooldown > 0}
+              className={`w-full rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-3 text-sm font-semibold text-slate-900 dark:text-slate-50 transition hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed ${
+                codeSent ? "" : "hidden"
+              }`}
+            >
+              {resendCooldown > 0
+                ? `Отправить письмо ещё раз (${resendCooldown}с)`
+                : "Отправить письмо ещё раз"}
             </button>
           </form>
           <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
