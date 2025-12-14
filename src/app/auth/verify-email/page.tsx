@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { API_BASE_URL } from "@/lib/api";
@@ -18,7 +18,7 @@ const translateError = (message: string): string => {
   return map[message] || message || "Не удалось подтвердить email.";
 };
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams?.get("token") || "";
@@ -108,6 +108,24 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <section className="bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors">
+          <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-6 py-16">
+            <div className="rounded-3xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-[0_25px_60px_rgba(15,23,42,0.05)] transition-colors">
+              <p className="text-sm text-slate-600 dark:text-slate-300">Загрузка...</p>
+            </div>
+          </div>
+        </section>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
 
