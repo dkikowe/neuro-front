@@ -61,10 +61,6 @@ export default function GalleryPage() {
   const [downloadingHdId, setDownloadingHdId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(6); // desktop default
-  const [downloadDialog, setDownloadDialog] = useState<{
-    id: string;
-    url: string;
-  } | null>(null);
 
   // Определяем количество карточек на страницу: десктоп 6, мобильные 5
   useEffect(() => {
@@ -336,23 +332,49 @@ export default function GalleryPage() {
                   <div className="mt-4 flex flex-wrap gap-3">
                     <button
                       onClick={() =>
-                        setDownloadDialog({
-                          id: item.id,
-                          url: item.resultUrl,
-                        })
+                        handleDownload(
+                          item.id,
+                          item.resultUrl,
+                          "generated-image.jpg",
+                          false
+                        )
                       }
                       disabled={downloadingId === item.id}
                       className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {downloadingId === item.id ? (
+                      {downloadingId === item.id && !downloadingHdId ? (
                         <>
                           <Loader2 size={16} className="animate-spin" />
-                          Скачивание...
+                          Загрузка...
                         </>
                       ) : (
                         <>
                           <Download size={16} />
-                          Скачать
+                          Скачать (SD)
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleDownload(
+                          item.id,
+                          item.resultUrl,
+                          "generated-image-hd.jpg",
+                          true
+                        )
+                      }
+                      disabled={downloadingId === item.id}
+                      className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-slate-50 transition hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {downloadingHdId === item.id ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          Загрузка HD...
+                        </>
+                      ) : (
+                        <>
+                          <Download size={16} />
+                          Скачать HD
                         </>
                       )}
                     </button>
@@ -419,72 +441,6 @@ export default function GalleryPage() {
                 alt="Предпросмотр"
                 className="max-h-[90vh] w-full object-contain"
               />
-            </div>
-          </div>
-        </div>
-      )}
-      {downloadDialog && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          onClick={() => {
-            if (downloadingId) return;
-            setDownloadDialog(null);
-          }}
-        >
-          <div
-            className="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
-              Скачать изображение
-            </h3>
-            <div className="space-y-3">
-              <button
-                onClick={() =>
-                  downloadDialog &&
-                  handleDownload(
-                    downloadDialog.id,
-                    downloadDialog.url,
-                    "generated-image-hd.jpg",
-                    true
-                  ).finally(() => setDownloadDialog(null))
-                }
-                disabled={downloadingId === downloadDialog.id}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-slate-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Download size={16} />
-                {downloadingHdId === downloadDialog.id
-                  ? "Загрузка HD..."
-                  : "Скачать HD"}
-              </button>
-              <button
-                onClick={() =>
-                  downloadDialog &&
-                  handleDownload(
-                    downloadDialog.id,
-                    downloadDialog.url,
-                    "generated-image.jpg",
-                    false
-                  ).finally(() => setDownloadDialog(null))
-                }
-                disabled={downloadingId === downloadDialog.id}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-slate-50 transition hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Download size={16} />
-                {downloadingId === downloadDialog.id && !downloadingHdId
-                  ? "Загрузка..."
-                  : "Скачать обычное"}
-              </button>
-              <button
-                onClick={() => {
-                  if (downloadingId) return;
-                  setDownloadDialog(null);
-                }}
-                disabled={!!downloadingId}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Отмена
-              </button>
             </div>
           </div>
         </div>
