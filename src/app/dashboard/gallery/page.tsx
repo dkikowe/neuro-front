@@ -60,12 +60,23 @@ export default function GalleryPage() {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [downloadingHdId, setDownloadingHdId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6); // desktop default
   const [downloadDialog, setDownloadDialog] = useState<{
     id: string;
     url: string;
   } | null>(null);
 
-  const PAGE_SIZE = 5;
+  // Определяем количество карточек на страницу: десктоп 6, мобильные 5
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const update = () => {
+      const isMobile = window.innerWidth < 640;
+      setPageSize(isMobile ? 5 : 6);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -199,10 +210,10 @@ export default function GalleryPage() {
     loadUploads();
   };
 
-  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   const pagedItems = items.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
 
   const goToPage = (page: number) => {
@@ -350,24 +361,36 @@ export default function GalleryPage() {
               ))}
             </div>
           )}
-          {items.length > PAGE_SIZE && (
-            <div className="mt-8 flex items-center justify-between gap-4">
+          {items.length > pageSize && (
+            <div className="mt-8 flex items-center justify-center gap-2 flex-wrap">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
               >
-                Назад
+                «
               </button>
-              <div className="text-sm text-slate-600 dark:text-slate-300">
-                Страница {currentPage} из {totalPages}
-              </div>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                      page === currentPage
+                        ? "bg-slate-900 text-white dark:bg-slate-700"
+                        : "border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-800"
               >
-                Вперёд
+                »
               </button>
             </div>
           )}

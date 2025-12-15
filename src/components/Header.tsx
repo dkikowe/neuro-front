@@ -29,7 +29,15 @@ export default function Header() {
           href="/"
           className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50 transition-colors"
         >
-          interiorAI hub
+          <span className="inline-flex items-center gap-2">
+            <img
+              src="/main/avatar.jpg"
+              alt="Logo"
+              className="hidden sm:inline h-8 w-8 rounded-md object-cover"
+              loading="lazy"
+            />
+            interiorAI hub
+          </span>
         </Link>
         <nav className="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-200">
           {isAuthenticated ? (
