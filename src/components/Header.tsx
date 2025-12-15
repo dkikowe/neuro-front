@@ -27,13 +27,13 @@ export default function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link
           href="/"
-          className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-50 transition-colors"
+          className="text-lg flex items-center gap-2 font-semibold tracking-tight text-slate-900 dark:text-slate-50 transition-colors"
         >
           <span className="inline-flex items-center gap-2">
             <img
               src="/main/avatar.jpg"
               alt="Logo"
-              className="hidden sm:inline h-8 w-8 rounded-md object-cover"
+              className="h-8 w-8 rounded-md object-cover sm:h-10 sm:w-10"
               loading="lazy"
             />
             interiorAI hub
