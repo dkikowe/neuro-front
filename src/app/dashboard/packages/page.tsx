@@ -64,7 +64,7 @@ const subs: Plan[] = [
   {
     title: "Standard — 599 ₽ / месяц",
     price: "599 ₽ / мес",
-    badge: "иРекомендуем",
+    badge: "Рекомендуем",
     description: "Самый сбалансированный план по цене и возможностям.",
     details: [
       "Комфортный режим для регулярных редизайнов",
@@ -86,7 +86,7 @@ const subs: Plan[] = [
 
 function PlanCard({ plan }: { plan: Plan }) {
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm transition-colors">
+    <div className="flex h-full flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
@@ -110,7 +110,7 @@ function PlanCard({ plan }: { plan: Plan }) {
           </li>
         ))}
       </ul>
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-auto pt-4 flex items-center justify-between">
         <span className="text-lg font-semibold text-slate-900 dark:text-slate-50">
           {plan.price}
         </span>

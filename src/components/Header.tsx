@@ -31,9 +31,9 @@ export default function Header() {
         >
           <span className="inline-flex items-center gap-2">
             <img
-              src="/main/avatar.jpg"
+              src="/main/ava.png"
               alt="Logo"
-              className="h-8 w-8 rounded-md object-cover sm:h-10 sm:w-10"
+              className="h-12 w-12 rounded-md object-cover sm:h-12 sm:w-12"
               loading="lazy"
             />
             interiorAI hub

@@ -12,7 +12,10 @@ export default function Hero() {
             Создавайте новый интерьер из любой фотографии
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Загрузите изображение комнаты и получите серию реалистичных вариантов в разных стилях. AI аккуратно сохраняет планировку и структуру помещения, предлагая обновлённый дизайн в студийном качестве.
+            Загрузите изображение комнаты и получите серию реалистичных
+            вариантов в разных стилях. AI аккуратно сохраняет планировку и
+            структуру помещения, предлагая обновлённый дизайн в студийном
+            качестве.
           </p>
           <div className="flex flex-wrap gap-4">
             <Button href="/auth/register">Попробовать</Button>
@@ -23,7 +26,7 @@ export default function Hero() {
         </div>
         <div className="flex flex-1 flex-col gap-4 rounded-3xl border border-white/70 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 p-8 shadow-[0_20px_80px_rgba(15,23,42,0.08)]">
           <div className="grid grid-cols-3 gap-3 text-center text-sm">
-            {["20+ стилей", "HD экспорт", "Мгновенные превью"].map((item) => (
+            {["10 стилей", "HD экспорт", "Мгновенные превью"].map((item) => (
               <div
                 key={item}
                 className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 px-3 py-4 text-slate-600 dark:text-slate-400"
@@ -45,4 +48,3 @@ export default function Hero() {
     </section>
   );
 }
-
