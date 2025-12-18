@@ -1,6 +1,10 @@
 "use client";
 
+import { useState } from "react";
+import { purchasePlan } from "@/lib/api";
+
 type Plan = {
+  planId: string;
   title: string;
   price: string;
   badge?: string;
@@ -10,6 +14,7 @@ type Plan = {
 
 const oneTime: Plan[] = [
   {
+    planId: "hd_1",
     title: "1 HD — 79 ₽",
     price: "79 ₽",
     description: "1 HD-изображение в высоком качестве",
@@ -19,6 +24,7 @@ const oneTime: Plan[] = [
     ],
   },
   {
+    planId: "hd_3",
     title: "3 HD — 149 ₽",
     price: "149 ₽",
     description:
@@ -26,6 +32,7 @@ const oneTime: Plan[] = [
     details: ["Экономия относительно покупки по 1 шт."],
   },
   {
+    planId: "hd_5",
     title: "5 HD — 249 ₽",
     price: "249 ₽",
     badge: "★ Хит",
@@ -36,12 +43,14 @@ const oneTime: Plan[] = [
     ],
   },
   {
+    planId: "hd_10",
     title: "10 HD — 449 ₽",
     price: "449 ₽",
     description: "10 HD-изображений",
     details: ["Подходит для 2–3 комнат и теста разных стилей"],
   },
   {
+    planId: "hd_20",
     title: "20 HD — 799 ₽",
     price: "799 ₽",
     badge: "PRO",
@@ -52,31 +61,37 @@ const oneTime: Plan[] = [
 
 const subs: Plan[] = [
   {
+    planId: "lite",
     title: "Lite — 299 ₽ / месяц",
     price: "299 ₽ / мес",
     description: "Для тех, кто делает редизайн время от времени.",
     details: [
+      "30 генераций, 10 HD",
       "Базовый доступ к сервису",
       "Удобно, если нужны идеи “иногда”",
       "Выгоднее разовых покупок при регулярном использовании",
     ],
   },
   {
+    planId: "standard",
     title: "Standard — 599 ₽ / месяц",
     price: "599 ₽ / мес",
     badge: "Рекомендуем",
     description: "Самый сбалансированный план по цене и возможностям.",
     details: [
+      "100 генераций, 40 HD",
       "Комфортный режим для регулярных редизайнов",
       "Идеален для теста стилей и подготовки к ремонту",
       "Лучшее соотношение цена/ценность",
     ],
   },
   {
+    planId: "pro",
     title: "Pro — 1499 ₽ / месяц",
     price: "1499 ₽ / мес",
     description: "Для активных пользователей и профессионалов.",
     details: [
+      "300 генераций, 150 HD",
       "Максимум возможностей",
       "Подходит дизайнерам/риэлторам/контент‑создателям",
       "Лучший вариант, если генерируешь много каждый месяц",
@@ -84,7 +99,15 @@ const subs: Plan[] = [
   },
 ];
 
-function PlanCard({ plan }: { plan: Plan }) {
+function PlanCard({
+  plan,
+  onBuy,
+  loading,
+}: {
+  plan: Plan;
+  onBuy: (planId: string) => void;
+  loading: boolean;
+}) {
   return (
     <div className="flex h-full flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm transition-colors">
       <div className="flex items-start justify-between gap-2">
@@ -114,8 +137,12 @@ function PlanCard({ plan }: { plan: Plan }) {
         <span className="text-lg font-semibold text-slate-900 dark:text-slate-50">
           {plan.price}
         </span>
-        <button className="rounded-full bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600">
-          Купить
+        <button
+          onClick={() => onBuy(plan.planId)}
+          disabled={loading}
+          className="rounded-full bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Покупка..." : "Купить"}
         </button>
       </div>
     </div>
@@ -123,6 +150,46 @@ function PlanCard({ plan }: { plan: Plan }) {
 }
 
 export default function PackagesPage() {
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [toasts, setToasts] = useState<
+    { id: string; message: string; type: "success" | "error" }[]
+  >([]);
+
+  const addToast = (message: string, type: "success" | "error") => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
+
+  const handleBuy = async (planId: string) => {
+    setLoadingId(planId);
+    try {
+      const res = await purchasePlan(planId);
+      if (res.added_hd || res.added_std) {
+        const hd = res.added_hd ? ` HD +${res.added_hd}` : "";
+        const std = res.added_std ? ` STD +${res.added_std}` : "";
+        addToast(`Баланс пополнен:${hd}${std}`, "success");
+      } else {
+        addToast("Баланс успешно пополнен", "success");
+      }
+    } catch (err: any) {
+      if (err?.response?.status === 402) {
+        addToast("У вас закончились генерации", "error");
+      } else {
+        const msg =
+          err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Ошибка покупки";
+        addToast(msg, "error");
+      }
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   return (
     <section className="bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors">
       <div className="mx-auto max-w-6xl px-6 py-16 space-y-10">
@@ -142,7 +209,12 @@ export default function PackagesPage() {
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {oneTime.map((plan) => (
-              <PlanCard key={plan.title} plan={plan} />
+              <PlanCard
+                key={plan.title}
+                plan={plan}
+                onBuy={handleBuy}
+                loading={loadingId === plan.planId}
+              />
             ))}
           </div>
         </div>
@@ -153,10 +225,29 @@ export default function PackagesPage() {
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {subs.map((plan) => (
-              <PlanCard key={plan.title} plan={plan} />
+              <PlanCard
+                key={plan.title}
+                plan={plan}
+                onBuy={handleBuy}
+                loading={loadingId === plan.planId}
+              />
             ))}
           </div>
         </div>
+      </div>
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`rounded-xl px-4 py-3 text-sm font-semibold shadow-lg ${
+              t.type === "success"
+                ? "bg-emerald-600 text-white"
+                : "bg-rose-600 text-white"
+            }`}
+          >
+            {t.message}
+          </div>
+        ))}
       </div>
     </section>
   );

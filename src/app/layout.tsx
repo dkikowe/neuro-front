@@ -4,13 +4,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Providers } from "@/components/Providers";
 
-const metaTitle = "NeuroFrame — фотогенерация в пару кликов";
+const metaTitle = "InteriorAI hub — фотогенерация в пару кликов";
 const metaDescription =
   "Загрузите фото, выберите стиль и получите готовые нейроизображения в высоком разрешении.";
 
 export const metadata = {
   title: metaTitle,
   description: metaDescription,
+  icons: {
+    icon: "/main/ava.png",
+    shortcut: "/main/ava.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

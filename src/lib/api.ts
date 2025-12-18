@@ -372,6 +372,33 @@ export type UploadItem = UploadResponse & {
   createdBy?: string;
 };
 
+// ===== Billing =====
+export interface BillingBalance {
+  remaining_std?: number;
+  used_std?: number;
+  remaining_hd?: number;
+  used_hd?: number;
+  plan?: string | null;
+  current_plan?: string | null;
+  purchased_at?: string | null;
+}
+
+export async function getBillingBalance(): Promise<BillingBalance> {
+  const response = await api.get<BillingBalance>("/billing/balance");
+  return response.data;
+}
+
+export async function purchasePlan(
+  planId: string
+): Promise<BillingBalance & { added_std?: number; added_hd?: number }> {
+  const response = await api.post<
+    BillingBalance & { added_std?: number; added_hd?: number }
+  >("/billing/purchase", {
+    plan_id: planId,
+  });
+  return response.data;
+}
+
 /**
  * Получить список аплоадов текущего пользователя (desc)
  */
