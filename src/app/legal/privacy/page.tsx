@@ -7,9 +7,9 @@ export default function PrivacyPage() {
         <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
           Политика конфиденциальности
         </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Настоящая Политика определяет порядок обработки и защиты персональных данных пользователей сайта ВАШ_ДОМЕН.
-        </p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+          Настоящая Политика определяет порядок обработки и защиты персональных данных пользователей сайта https://neuro-front.vercel.app/.
+          </p>
 
         <div className="space-y-4 text-slate-800 dark:text-slate-200">
           <h2 className="text-xl font-semibold">1. Общие положения</h2>
