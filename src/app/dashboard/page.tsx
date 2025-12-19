@@ -49,7 +49,7 @@ export default function DashboardPage() {
   const [supportSubject, setSupportSubject] = useState("");
   const [supportMessage, setSupportMessage] = useState("");
   const [supportSending, setSupportSending] = useState(false);
-  const supportEmail = "support@ВАШ_ДОМЕН";
+  const supportEmail = "contact.interiorai@gmail.com";
 
   const addToast = (message: string, type: "success" | "error") => {
     const id = `${Date.now()}-${Math.random()}`;

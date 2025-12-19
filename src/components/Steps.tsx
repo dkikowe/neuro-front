@@ -1,7 +1,7 @@
 const steps = [
   {
     title: "Загрузка",
-    description: "Добавьте одно или несколько исходных фото в личном кабинете.",
+    description: "Добавьте одно изображение в личном кабинете.",
   },
   {
     title: "Выбор стиля",
@@ -13,7 +13,8 @@ const steps = [
   },
   {
     title: "Галерея и экспорт",
-    description: "Скачайте предпросмотры или оформите HD-рендер за пару кликов.",
+    description:
+      "Скачайте предпросмотры или оформите HD-рендер за пару кликов.",
   },
 ];
 
@@ -29,8 +30,8 @@ export default function Steps() {
             Полный путь от загрузки до HD-версии занимает меньше минуты
           </h2>
           <p className="text-slate-600 dark:text-slate-400">
-            Каждый шаг построен так, чтобы вы могли быстро проверить результат и
-            перейти к оплате только при необходимости.
+            После оплаты сервис автоматически запускает процесс генерации и
+            предоставляет результат без ожиданий и задержек.
           </p>
         </div>
         <div className="grid gap-6 md:grid-cols-2">
@@ -45,7 +46,9 @@ export default function Steps() {
               <h3 className="mt-3 text-xl font-semibold text-slate-900 dark:text-slate-50">
                 {step.title}
               </h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{step.description}</p>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                {step.description}
+              </p>
             </div>
           ))}
         </div>
@@ -53,4 +56,3 @@ export default function Steps() {
     </section>
   );
 }
-
