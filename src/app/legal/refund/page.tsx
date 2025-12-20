@@ -11,7 +11,7 @@ export default function RefundPage() {
         <div className="space-y-4 text-slate-800 dark:text-slate-200">
           <h2 className="text-xl font-semibold">1. Общие положения</h2>
           <p>
-            1.1. Услуги, предоставляемые на сайте https://interioeaihub.com/,
+            1.1. Услуги, предоставляемые на сайте https://interioeaihub.com,
             являются цифровыми и оказываются онлайн.
           </p>
 
