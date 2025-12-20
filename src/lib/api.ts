@@ -69,6 +69,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
+    const detail =
+      (error.response?.data as any)?.detail ||
+      (error.response?.data as any)?.message;
+    if (detail) {
+      error.message = detail;
+    }
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };

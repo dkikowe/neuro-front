@@ -9,7 +9,7 @@ export default function PrivacyPage() {
         </h1>
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Настоящая Политика определяет порядок обработки и защиты персональных
-          данных пользователей сайта https://neuro-front.vercel.app.
+          данных пользователей сайта https://interioeaihub.com/.
         </p>
 
         <div className="space-y-4 text-slate-800 dark:text-slate-200">
