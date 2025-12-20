@@ -11,32 +11,35 @@ export default function Footer() {
             312832501769
           </a>
         </p>
-        <div className="flex flex-col gap-2">
-          <a href="/legal/offer" className="hover:underline">
-            Публичная оферта
-          </a>
-          <a href="/legal/privacy" className="hover:underline">
-            Политика конфиденциальности
-          </a>
-          <a href="/legal/refund" className="hover:underline">
-            Условия оказания услуг
-          </a>
-          <a
-            href="mailto:contact.interiorai@gmail.com"
-            className="hover:underline"
-          >
-            Контакты
-          </a>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <a href="/legal/offer" className="hover:underline">
+              Публичная оферта
+            </a>
+            <a href="/legal/privacy" className="hover:underline">
+              Политика конфиденциальности
+            </a>
+            <a href="/legal/refund" className="hover:underline">
+              Условия оказания услуг
+            </a>
+            <a
+              href="mailto:contact.interiorai@gmail.com"
+              className="hover:underline"
+            >
+              Контакты
+            </a>
+          </div>
           <a
             href="https://www.instagram.com/interiorai_hub?igsh=MW9kamdmZXl6azAwOQ%3D%3D&utm_source=qr"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 hover:underline"
+            className="flex items-center justify-center rounded-full text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+            aria-label="Instagram"
           >
             <svg
               aria-hidden="true"
-              width="18"
-              height="18"
+              width="24"
+              height="24"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -48,7 +51,6 @@ export default function Footer() {
               <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
               <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
             </svg>
-            Instagram
           </a>
         </div>
       </div>
