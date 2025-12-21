@@ -387,6 +387,7 @@ export interface BillingBalance {
   plan?: string | null;
   current_plan?: string | null;
   purchased_at?: string | null;
+  plan_expires_at?: string | null;
 }
 
 export async function getBillingBalance(): Promise<BillingBalance> {

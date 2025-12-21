@@ -19,19 +19,21 @@ type GalleryItem = {
   resultUrl: string;
   style?: string;
   createdAt: string;
+  daysLeft?: number | null;
 };
 
 // Маппинг стилей на русский язык (из бэкенда)
 const styleNamesRu: Record<string, string> = {
-  modern: "Современный",
-  scandi: "Скандинавский",
-  loft: "Лофт",
-  minimalist: "Минимализм",
-  classic: "Классический",
-  japandi: "Япанди",
-  "luxury-modern": "Современная роскошь",
-  "art-deco": "Ар-деко",
-  mediterranean: "Средиземноморский",
+  "soft-minimal": "Софт-минимализм",
+  "warm-modern": "Тёплый модерн",
+  "neo-japandi": "Нео-Япанди",
+  "organic-modern": "Органичный модерн",
+  "wabi-sabi-modern": "Ваби-саби модерн",
+  "neo-scandinavian": "Нео-скандинавский",
+  "monochrome-premium": "Премиальный монохром",
+  "soft-brutalism": "Софт-брутализм",
+  "modern-mediterranean": "Современный средиземноморский",
+  "design-hotel": "Дизайн-отель",
 };
 
 const getStyleDisplayName = (styleId?: string): string => {
@@ -125,6 +127,7 @@ export default function GalleryPage() {
             resultUrl,
             style: u.style,
             createdAt: u.created_at || u.createdAt || new Date().toISOString(),
+            daysLeft: (u as any).days_left ?? (u as any).daysLeft ?? null,
           };
         })
         .filter(Boolean) as GalleryItem[];
@@ -289,11 +292,18 @@ export default function GalleryPage() {
                         })}
                       </span>
                     </div>
-                    {item.style && (
+                    <div className="flex items-center gap-2">
                       <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                        {getStyleDisplayName(item.style)}
+                        {typeof item.daysLeft === "number"
+                          ? `Осталось дней: ${item.daysLeft}`
+                          : "Сгенерировано до обновления"}
                       </span>
-                    )}
+                      {item.style && (
+                        <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                          {getStyleDisplayName(item.style)}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

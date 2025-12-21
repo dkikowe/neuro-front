@@ -132,6 +132,7 @@ export default function DashboardPage() {
               remaining_hd: 0,
               used_hd: 0,
               plan: null,
+              plan_expires_at: null,
               purchased_at: null,
             });
           } else {
@@ -173,6 +174,7 @@ export default function DashboardPage() {
                     remaining_hd: 0,
                     used_hd: 0,
                     plan: null,
+                    plan_expires_at: null,
                     purchased_at: null,
                   });
                 } else {
@@ -427,11 +429,18 @@ export default function DashboardPage() {
                     {translatePlan(balance.current_plan)}
                   </p>
                 )}
-
                 {balance?.purchased_at && (
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                     c{" "}
                     {new Date(balance.purchased_at).toLocaleDateString("ru-RU")}
+                  </p>
+                )}
+                {balance?.plan_expires_at && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Действует до{" "}
+                    {new Date(balance.plan_expires_at).toLocaleDateString(
+                      "ru-RU"
+                    )}
                   </p>
                 )}
               </div>

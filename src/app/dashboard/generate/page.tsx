@@ -61,6 +61,7 @@ export default function GeneratePage() {
   const [generationStatus, setGenerationStatus] =
     useState<GenerationStatus | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showBuyCta, setShowBuyCta] = useState(false);
 
   const [cooldownSeconds, setCooldownSeconds] = useState<number>(0);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -99,7 +100,23 @@ export default function GeneratePage() {
       setStylesError("");
       try {
         const stylesData = await getStyles();
-        setStyles(stylesData);
+        const styleNamesRu: Record<string, string> = {
+          "soft-minimal": "Софт-минимализм",
+          "warm-modern": "Тёплый модерн",
+          "neo-japandi": "Нео-Япанди",
+          "organic-modern": "Органичный модерн",
+          "wabi-sabi-modern": "Ваби-саби модерн",
+          "neo-scandinavian": "Нео-скандинавский",
+          "monochrome-premium": "Премиальный монохром",
+          "soft-brutalism": "Софт-брутализм",
+          "modern-mediterranean": "Современный средиземноморский",
+          "design-hotel": "Дизайн-отель",
+        };
+        const localized = stylesData.map((s) => ({
+          ...s,
+          displayName: styleNamesRu[s.id] || s.displayName || s.name || s.id,
+        }));
+        setStyles(localized);
       } catch (err: any) {
         setStylesError("Не удалось загрузить список стилей");
         console.error("Styles fetch error:", err);
@@ -270,6 +287,7 @@ export default function GeneratePage() {
     }
 
     try {
+      setShowBuyCta(false);
       // Останавливаем старый polling перед началом новой генерации
       if (pollingIntervalRef.current) {
         console.log("🛑 Останавливаем старый polling...");
@@ -332,9 +350,21 @@ export default function GeneratePage() {
       setTaskId(taskIdValue);
     } catch (err: any) {
       setGenerationState("error");
-      setGenerationError(
-        err.response?.data?.message || err.message || "Ошибка генерации"
-      );
+      if (err?.response?.status === 402) {
+        setGenerationError(
+          err.response?.data?.detail ||
+            err.response?.data?.message ||
+            "Лимит генераций исчерпан. Оформите пакет или подписку."
+        );
+        setShowBuyCta(true);
+      } else {
+        setGenerationError(
+          err.response?.data?.detail ||
+            err.response?.data?.message ||
+            err.message ||
+            "Ошибка генерации"
+        );
+      }
       setUploadState("error");
       console.error("Generation start error:", err);
     }
@@ -350,6 +380,7 @@ export default function GeneratePage() {
       return;
     }
     try {
+      setShowBuyCta(false);
       setGenerationState("generating");
       setGenerationError("");
       setGenerationStatus(null);
@@ -380,9 +411,21 @@ export default function GeneratePage() {
       setTaskId(taskIdValue);
     } catch (err: any) {
       setGenerationState("error");
-      setGenerationError(
-        err.response?.data?.message || err.message || "Ошибка генерации"
-      );
+      if (err?.response?.status === 402) {
+        setGenerationError(
+          err.response?.data?.detail ||
+            err.response?.data?.message ||
+            "Лимит генераций исчерпан. Оформите пакет или подписку."
+        );
+        setShowBuyCta(true);
+      } else {
+        setGenerationError(
+          err.response?.data?.detail ||
+            err.response?.data?.message ||
+            err.message ||
+            "Ошибка генерации"
+        );
+      }
       setUploadState("error");
       console.error("Regeneration error:", err);
     }
@@ -836,9 +879,20 @@ export default function GeneratePage() {
                 )}
 
                 {generationState === "error" && generationError && (
-                  <div className="flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
-                    <XCircle size={20} />
-                    <span>{generationError}</span>
+                  <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
+                    <XCircle size={20} className="mt-0.5" />
+                    <div className="flex flex-col gap-2">
+                      <span>{generationError}</span>
+                      {showBuyCta && (
+                        <button
+                          type="button"
+                          onClick={() => router.push("/dashboard/packages")}
+                          className="inline-flex items-center justify-center rounded-full bg-slate-900 dark:bg-slate-700 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-800 dark:hover:bg-slate-600 transition"
+                        >
+                          Перейти к пакетам
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
