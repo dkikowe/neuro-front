@@ -235,47 +235,38 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 self-start">
-                <Link
-                  href="/dashboard/packages"
-                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-                >
-                  <Package size={16} />
-                  Тарифы
-                </Link>
-                <button
-                  onClick={() => {
-                    const newTheme = theme === "dark" ? "light" : "dark";
-                    console.log("Switching theme from", theme, "to", newTheme);
-                    setTheme(newTheme);
-                    // Применяем немедленно
-                    const root = document.documentElement;
-                    if (newTheme === "dark") {
-                      root.classList.add("dark");
-                    } else {
-                      root.classList.remove("dark");
-                    }
-                  }}
-                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-                >
-                  {!mounted ? (
-                    <>
-                      <Moon size={16} />
-                      Тёмная тема
-                    </>
-                  ) : theme === "dark" ? (
-                    <>
-                      <Sun size={16} />
-                      Светлая тема
-                    </>
-                  ) : (
-                    <>
-                      <Moon size={16} />
-                      Тёмная тема
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  const newTheme = theme === "dark" ? "light" : "dark";
+                  console.log("Switching theme from", theme, "to", newTheme);
+                  setTheme(newTheme);
+                  // Применяем немедленно
+                  const root = document.documentElement;
+                  if (newTheme === "dark") {
+                    root.classList.add("dark");
+                  } else {
+                    root.classList.remove("dark");
+                  }
+                }}
+                className="flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+              >
+                {!mounted ? (
+                  <>
+                    <Moon size={16} />
+                    Тёмная тема
+                  </>
+                ) : theme === "dark" ? (
+                  <>
+                    <Sun size={16} />
+                    Светлая тема
+                  </>
+                ) : (
+                  <>
+                    <Moon size={16} />
+                    Тёмная тема
+                  </>
+                )}
+              </button>
             </div>
           </div>
 

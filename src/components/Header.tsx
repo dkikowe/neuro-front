@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { authService } from "@/services/auth";
-import { User, Sparkles, LogOut } from "lucide-react";
+import { User, Sparkles, LogOut, Package } from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
@@ -24,16 +24,16 @@ export default function Header() {
 
   return (
     <header className="border-b border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-900 transition-colors">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6 sm:py-5">
         <Link
           href="/"
-          className="text-lg flex items-center gap-2 font-semibold tracking-tight text-slate-900 dark:text-slate-50 transition-colors"
+          className="flex items-center gap-2 font-semibold tracking-tight text-slate-900 dark:text-slate-50 transition-colors text-base sm:text-lg"
         >
           <span className="inline-flex items-center gap-2">
             <img
               src="/main/ava.png"
               alt="Logo"
-              className="h-12 w-12 rounded-md object-cover sm:h-12 sm:w-12"
+              className="h-10 w-10 rounded-md object-cover sm:h-12 sm:w-12"
               loading="lazy"
             />
             interiorAI hub
@@ -65,6 +65,18 @@ export default function Header() {
               >
                 <User size={18} />
                 <span className="hidden sm:inline">Личный кабинет</span>
+              </Link>
+              <Link
+                href="/dashboard/packages"
+                className={`flex items-center gap-2 rounded-full px-4 py-2 transition-colors ${
+                  pathname === "/dashboard/packages"
+                    ? "bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
+                    : "text-slate-600 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                }`}
+                title="Тарифы"
+              >
+                <Package size={18} />
+                <span className="hidden sm:inline">Тарифы</span>
               </Link>
               <button
                 onClick={handleLogout}
