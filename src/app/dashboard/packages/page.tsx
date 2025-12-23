@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { purchasePlan } from "@/lib/api";
+import { authService } from "@/services/auth";
 
 type Plan = {
   planId: string;
@@ -150,6 +152,7 @@ function PlanCard({
 }
 
 export default function PackagesPage() {
+  const router = useRouter();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [toasts, setToasts] = useState<
     { id: string; message: string; type: "success" | "error" }[]
@@ -164,6 +167,12 @@ export default function PackagesPage() {
   };
 
   const handleBuy = async (planId: string) => {
+    const token = authService.getAccessToken();
+    if (!token) {
+      router.push("/auth/login");
+      return;
+    }
+
     setLoadingId(planId);
     try {
       const res = await purchasePlan(planId);
