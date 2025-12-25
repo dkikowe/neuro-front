@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { purchasePlan } from "@/lib/api";
+import { createPayment } from "@/lib/api";
 import { authService } from "@/services/auth";
 
 type Plan = {
   planId: string;
   title: string;
   price: string;
+  amount: number;
   badge?: string;
   description: string;
   details: string[];
@@ -19,6 +20,7 @@ const oneTime: Plan[] = [
     planId: "hd_1",
     title: "1 HD — 79 ₽",
     price: "79 ₽",
+    amount: 79,
     description: "1 HD-изображение в высоком качестве",
     details: [
       "Доступ сразу после оплаты",
@@ -29,6 +31,7 @@ const oneTime: Plan[] = [
     planId: "hd_3",
     title: "3 HD — 149 ₽",
     price: "149 ₽",
+    amount: 149,
     description:
       "Можно сделать 1 комнату в 3 стилях или 3 варианта одного стиля",
     details: ["Экономия относительно покупки по 1 шт."],
@@ -37,6 +40,7 @@ const oneTime: Plan[] = [
     planId: "hd_5",
     title: "5 HD — 249 ₽",
     price: "249 ₽",
+    amount: 249,
     badge: "★ Хит",
     description: "5 HD-изображений",
     details: [
@@ -48,6 +52,7 @@ const oneTime: Plan[] = [
     planId: "hd_10",
     title: "10 HD — 449 ₽",
     price: "449 ₽",
+    amount: 449,
     description: "10 HD-изображений",
     details: ["Подходит для 2–3 комнат и теста разных стилей"],
   },
@@ -55,6 +60,7 @@ const oneTime: Plan[] = [
     planId: "hd_20",
     title: "20 HD — 799 ₽",
     price: "799 ₽",
+    amount: 799,
     badge: "PRO",
     description: "20 HD-изображений",
     details: ["Удобно для квартиры целиком (несколько комнат + разные стили)"],
@@ -66,6 +72,7 @@ const subs: Plan[] = [
     planId: "lite",
     title: "Lite — 299 ₽ / месяц",
     price: "299 ₽ / мес",
+    amount: 299,
     description: "Для тех, кто делает редизайн время от времени.",
     details: [
       "30 генераций, 10 HD",
@@ -78,6 +85,7 @@ const subs: Plan[] = [
     planId: "standard",
     title: "Standard — 599 ₽ / месяц",
     price: "599 ₽ / мес",
+    amount: 599,
     badge: "Рекомендуем",
     description: "Самый сбалансированный план по цене и возможностям.",
     details: [
@@ -91,6 +99,7 @@ const subs: Plan[] = [
     planId: "pro",
     title: "Pro — 1499 ₽ / месяц",
     price: "1499 ₽ / мес",
+    amount: 1499,
     description: "Для активных пользователей и профессионалов.",
     details: [
       "300 генераций, 150 HD",
@@ -107,7 +116,7 @@ function PlanCard({
   loading,
 }: {
   plan: Plan;
-  onBuy: (planId: string) => void;
+  onBuy: () => void;
   loading: boolean;
 }) {
   return (
@@ -140,7 +149,7 @@ function PlanCard({
           {plan.price}
         </span>
         <button
-          onClick={() => onBuy(plan.planId)}
+          onClick={onBuy}
           disabled={loading}
           className="rounded-full bg-slate-900 dark:bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -166,34 +175,36 @@ export default function PackagesPage() {
     }, 4000);
   };
 
-  const handleBuy = async (planId: string) => {
+  const handleBuy = async (plan: Plan) => {
     const token = authService.getAccessToken();
     if (!token) {
       router.push("/auth/login");
       return;
     }
 
-    setLoadingId(planId);
+    setLoadingId(plan.planId);
     try {
-      const res = await purchasePlan(planId);
-      if (res.added_hd || res.added_std) {
-        const hd = res.added_hd ? ` HD +${res.added_hd}` : "";
-        const std = res.added_std ? ` STD +${res.added_std}` : "";
-        addToast(`Баланс пополнен:${hd}${std}`, "success");
+      const orderId = Math.floor(Date.now() / 1000);
+      const payload = {
+        order_id: orderId,
+        amount: plan.amount,
+        description: plan.title,
+        plan_id: plan.planId,
+      };
+      const res = await createPayment(payload);
+      if (res?.payment_url) {
+        addToast("Перенаправляем на оплату...", "success");
+        window.location.href = res.payment_url;
       } else {
-        addToast("Баланс успешно пополнен", "success");
+        addToast("Не удалось получить ссылку на оплату", "error");
       }
     } catch (err: any) {
-      if (err?.response?.status === 402) {
-        addToast("У вас закончились генерации", "error");
-      } else {
-        const msg =
-          err?.response?.data?.detail ||
-          err?.response?.data?.message ||
-          err?.message ||
-          "Ошибка покупки";
-        addToast(msg, "error");
-      }
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Ошибка оплаты";
+      addToast(msg, "error");
     } finally {
       setLoadingId(null);
     }
@@ -221,7 +232,7 @@ export default function PackagesPage() {
               <PlanCard
                 key={plan.title}
                 plan={plan}
-                onBuy={handleBuy}
+                onBuy={() => handleBuy(plan)}
                 loading={loadingId === plan.planId}
               />
             ))}
@@ -237,7 +248,7 @@ export default function PackagesPage() {
               <PlanCard
                 key={plan.title}
                 plan={plan}
-                onBuy={handleBuy}
+                onBuy={() => handleBuy(plan)}
                 loading={loadingId === plan.planId}
               />
             ))}

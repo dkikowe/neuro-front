@@ -406,6 +406,28 @@ export async function purchasePlan(
   return response.data;
 }
 
+// Robokassa
+export interface CreatePaymentRequest {
+  order_id: number;
+  amount: number;
+  description: string;
+  plan_id: string;
+}
+
+export interface CreatePaymentResponse {
+  payment_url: string;
+}
+
+export async function createPayment(
+  payload: CreatePaymentRequest
+): Promise<CreatePaymentResponse> {
+  const response = await api.post<CreatePaymentResponse>(
+    "/robokassa/create-payment",
+    payload
+  );
+  return response.data;
+}
+
 /**
  * Получить список аплоадов текущего пользователя (desc)
  */
