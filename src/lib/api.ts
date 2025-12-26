@@ -395,8 +395,18 @@ export async function getBillingBalance(): Promise<BillingBalance> {
   return response.data;
 }
 
+export type PlanId =
+  | "hd_1"
+  | "hd_3"
+  | "hd_5"
+  | "hd_10"
+  | "hd_20"
+  | "lite"
+  | "standard"
+  | "pro";
+
 export async function purchasePlan(
-  planId: string
+  planId: PlanId
 ): Promise<BillingBalance & { added_std?: number; added_hd?: number }> {
   const response = await api.post<
     BillingBalance & { added_std?: number; added_hd?: number }
@@ -411,7 +421,7 @@ export interface CreatePaymentRequest {
   order_id: number;
   amount: number;
   description: string;
-  plan_id: string;
+  plan_id: PlanId;
 }
 
 export interface CreatePaymentResponse {

@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPayment } from "@/lib/api";
+import { createPayment, PlanId } from "@/lib/api";
 import { authService } from "@/services/auth";
 
 type Plan = {
-  planId: string;
+  planId: PlanId;
   title: string;
   price: string;
   amount: number;
