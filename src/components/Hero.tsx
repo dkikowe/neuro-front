@@ -9,7 +9,7 @@ export default function Hero() {
             Фото → Интерьер → Рендер
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl">
-            Создавайте новый интерьер из любой фотографии
+            Создавайт новый интерьер из любой фотографии
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400">
             Загрузите изображение комнаты и получите серию реалистичных
