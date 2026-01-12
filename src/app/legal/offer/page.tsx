@@ -1,4 +1,9 @@
-"use client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Публичная оферта",
+  description: "Публичная оферта на оказание услуг по генерации дизайна интерьера с использованием искусственного интеллекта.",
+};
 
 export default function OfferPage() {
   return (

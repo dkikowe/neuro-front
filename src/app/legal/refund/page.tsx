@@ -1,4 +1,9 @@
-"use client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Условия возврата",
+  description: "Правила и условия возврата денежных средств за услуги сервиса InteriorAI Hub.",
+};
 
 export default function RefundPage() {
   return (

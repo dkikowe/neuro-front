@@ -1,4 +1,9 @@
-"use client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Политика конфиденциальности",
+  description: "Политика обработки и защиты персональных данных пользователей сервиса InteriorAI Hub.",
+};
 
 export default function PrivacyPage() {
   return (
