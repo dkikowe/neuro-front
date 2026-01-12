@@ -5,9 +5,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Providers } from "@/components/Providers";
 
-const metaTitle = "InteriorAI Hub — Дизайн интерьера с помощью ИИ";
+const metaTitle = "Нейросеть для дизайна интерьера онлайн — InteriorAI Hub";
 const metaDescription =
-  "Загрузите фото, выберите стиль и получите готовые нейроизображения интерьера в высоком разрешении. AI-генерация дизайна за секунды.";
+  "Бесплатная нейросеть для дизайна интерьера по фото. Создайте дизайн квартиры, комнаты или дома онлайн за секунды. Искусственный интеллект для ремонта и перепланировки.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://interioeaihub.com"),
@@ -17,11 +17,14 @@ export const metadata: Metadata = {
   },
   description: metaDescription,
   keywords: [
-    "AI дизайн интерьера",
-    "нейросеть интерьер",
-    "редизайн комнаты онлайн",
-    "дизайн квартиры по фото",
-    "Interior AI",
+    "нейросеть для дизайна интерьера",
+    "дизайн интерьера онлайн",
+    "нейросеть дизайн квартиры",
+    "ии для интерьера",
+    "дизайн комнаты бесплатно",
+    "interior ai",
+    "нейросеть ремонт",
+    "дизайн дома по фото",
   ],
   robots: {
     index: true,
