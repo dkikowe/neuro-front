@@ -10,7 +10,7 @@ const metaDescription =
   "InteriorAI Hub — это современный инструмент на базе нейросети, позволяющий создать интерьер мечты по фото за пару минут. Загрузите изображение, выберите стиль и получите профессиональный дизайн-проект квартиры или комнаты онлайн.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://interioeaihub.com"),
+  metadataBase: new URL("https://interioraihub.com"),
   title: {
     default: metaTitle,
     template: `%s | InteriorAI Hub`,
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: metaTitle,
     description: metaDescription,
-    url: "https://interioeaihub.com",
+    url: "https://interioraihub.com",
     siteName: "InteriorAI Hub",
     locale: "ru_RU",
     type: "website",

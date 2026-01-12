@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/dashboard/", "/api/"],
     },
-    sitemap: "https://interioeaihub.com/sitemap.xml",
+    sitemap: "https://interioraihub.com/sitemap.xml",
   };
 }
 

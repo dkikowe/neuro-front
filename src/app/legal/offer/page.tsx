@@ -25,7 +25,7 @@ export default function OfferPage() {
           </p>
           <p>
             1.2. Настоящая оферта регулирует порядок оказания цифровых услуг
-            через сайт https://interioeaihub.com.
+            через сайт https://interioraihub.com.
           </p>
           <p>
             1.3. Оплата услуг означает полное и безоговорочное принятие условий
