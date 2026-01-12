@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/main/block.jpg", // Using an existing image as OG
+        url: "/main/ava.png", // Using an existing image as OG
         width: 1200,
         height: 630,
         alt: "InteriorAI Hub Preview",
